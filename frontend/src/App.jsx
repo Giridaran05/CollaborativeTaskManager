@@ -6,7 +6,6 @@ import Workspace from "./pages/Workspace";
 import Project from "./pages/Project";
 import TaskDetails from "./pages/TaskDetails";
 import Dashboard from "./pages/Dashboard";
-import Notifications from "./pages/Notifications";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
@@ -60,17 +59,6 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Dashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/notifications"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Notifications />
               </Layout>
             </ProtectedRoute>
           }
