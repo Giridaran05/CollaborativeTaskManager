@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Workspace from "./pages/Workspace";
-import ProjectBoard from "./pages/ProjectBoard";
+import Project from "./pages/Project";
 import TaskDetails from "./pages/TaskDetails";
 import Dashboard from "./pages/Dashboard";
 import Notifications from "./pages/Notifications";
@@ -33,11 +33,11 @@ function App() {
         />
 
         <Route
-          path="/projects/:workspaceId"
+          path="/project/:workspaceId"
           element={
             <ProtectedRoute>
               <Layout>
-                <ProjectBoard />
+                <Project />
               </Layout>
             </ProtectedRoute>
           }
