@@ -17,10 +17,22 @@ const activityRoutes = require("./routes/activityRoutes");
 
 dotenv.config();
 
+// -------------------
 // Connect Database
+// -------------------
+
 connectDB();
 
 const app = express();
+
+// -------------------
+// Allowed Origins
+// -------------------
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://collaborative-task-manager-bay.vercel.app"
+];
 
 // -------------------
 // Middlewares
@@ -28,17 +40,26 @@ const app = express();
 
 app.use(express.json());
 
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://collaborative-task-manager-bay.vercel.app"
-  ],
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
 
-// handle preflight requests
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
+
+// handle preflight
 app.options("*", cors());
 
 // -------------------
@@ -71,11 +92,9 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://collaborative-task-manager-bay.vercel.app"
-    ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true
   }
 });
 
@@ -86,31 +105,28 @@ const io = new Server(server, {
 let onlineUsers = {};
 
 io.on("connection", (socket) => {
+
   console.log("User connected:", socket.id);
 
-  // User Online
   socket.on("userOnline", (userId) => {
     onlineUsers[userId] = socket.id;
     io.emit("onlineUsers", Object.keys(onlineUsers));
   });
 
-  // Task moved
   socket.on("taskMoved", (data) => {
     io.emit("taskUpdated", data);
   });
 
-  // New comment
   socket.on("newComment", (data) => {
     io.emit("commentAdded", data);
   });
 
-  // Member joined workspace
   socket.on("memberJoined", (data) => {
     io.emit("workspaceUpdated", data);
   });
 
-  // Disconnect
   socket.on("disconnect", () => {
+
     console.log("User disconnected:", socket.id);
 
     for (let userId in onlineUsers) {
@@ -121,6 +137,7 @@ io.on("connection", (socket) => {
 
     io.emit("onlineUsers", Object.keys(onlineUsers));
   });
+
 });
 
 // -------------------
