@@ -1,35 +1,45 @@
-const express = require("express");
-const router = express.Router();
-const Workspace = require("../models/Workspace");
+const express = require("express")
+const router = express.Router()
+const Workspace = require("../models/Workspace")
+const crypto = require("crypto")
 
-// Create workspace
-router.post("/", async (req, res) => {
-  try {
+router.post("/",async(req,res)=>{
 
-    const { name } = req.body;
+ const inviteCode = crypto.randomBytes(4).toString("hex")
 
-    if (!name) {
-      return res.status(400).json({ message: "Workspace name required" });
-    }
+ const workspace = new Workspace({
+  name:req.body.name,
+  inviteCode
+ })
 
-    const workspace = new Workspace({ name });
+ await workspace.save()
 
-    await workspace.save();
+ res.json(workspace)
 
-    res.status(201).json(workspace);
+})
 
-  } catch (error) {
-    res.status(500).json({ message: "Failed to create workspace" });
-  }
-});
+router.get("/",async(req,res)=>{
 
-// Get all workspaces
-router.get("/", async (req, res) => {
+ const workspaces = await Workspace.find()
 
-  const workspaces = await Workspace.find().sort({ createdAt: -1 });
+ res.json(workspaces)
 
-  res.json(workspaces);
+})
 
-});
+router.get("/join/:code",async(req,res)=>{
 
-module.exports = router;
+ const workspace = await Workspace.findOne({
+  inviteCode:req.params.code
+ })
+
+ if(!workspace) return res.status(404).json("Invalid code")
+
+ workspace.members.push(req.user)
+
+ await workspace.save()
+
+ res.json(workspace)
+
+})
+
+module.exports = router

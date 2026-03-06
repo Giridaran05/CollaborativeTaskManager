@@ -1,26 +1,35 @@
-const express = require("express");
-const router = express.Router();
+const express = require("express")
+const router = express.Router()
+const Task = require("../models/Task")
 
-const authMiddleware = require("../middleware/authMiddleware");
+router.post("/",async(req,res)=>{
 
-const {
-  createTask,
-  getTasks,
-  updateTask,
-  deleteTask,
-  addComment
-} = require("../controllers/taskController");
+ const task = new Task(req.body)
 
+ await task.save()
 
-router.post("/", authMiddleware, createTask);
+ res.json(task)
 
-router.get("/:projectId", authMiddleware, getTasks);
+})
 
-router.patch("/:id", authMiddleware, updateTask);
+router.get("/project/:id",async(req,res)=>{
 
-router.delete("/:id", authMiddleware, deleteTask);
+ const tasks = await Task.find({project:req.params.id})
 
-router.post("/:id/comment", authMiddleware, addComment);
+ res.json(tasks)
 
+})
 
-module.exports = router;
+router.patch("/:id",async(req,res)=>{
+
+ const task = await Task.findByIdAndUpdate(
+  req.params.id,
+  req.body,
+  {new:true}
+ )
+
+ res.json(task)
+
+})
+
+module.exports = router

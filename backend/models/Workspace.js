@@ -1,23 +1,21 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 
-const workspaceSchema = new mongoose.Schema(
-{
-  name: {
-    type: String,
-    required: true
-  },
+const workspaceSchema = new mongoose.Schema({
 
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  },
+ name:String,
 
-  inviteToken: {
-    type: String
-  }
+ owner:{
+  type:mongoose.Schema.Types.ObjectId,
+  ref:"User"
+ },
 
-},
-{ timestamps: true }
-);
+ members:[{
+  type:mongoose.Schema.Types.ObjectId,
+  ref:"User"
+ }],
 
-module.exports = mongoose.model("Workspace", workspaceSchema);
+ inviteCode:String
+
+},{timestamps:true})
+
+module.exports = mongoose.model("Workspace",workspaceSchema)

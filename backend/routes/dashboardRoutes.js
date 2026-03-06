@@ -1,26 +1,24 @@
-const express = require("express");
-const router = express.Router();
-const Task = require("../models/Task");
+const express = require("express")
+const router = express.Router()
+const Task = require("../models/Task")
 
-router.get("/", async (req, res) => {
-  try {
+router.get("/",async(req,res)=>{
 
-    const tasks = await Task.find();
+ const totalTasks = await Task.countDocuments()
 
-    const completed = tasks.filter(t => t.status === "completed").length;
-    const pending = tasks.filter(t => t.status === "pending").length;
+ const completed = await Task.countDocuments({status:"Done"})
 
-    res.json({
-      totalTasks: tasks.length,
-      tasksByStatus: [
-        { status: "completed", count: completed },
-        { status: "pending", count: pending }
-      ]
-    });
+ const inProgress = await Task.countDocuments({status:"In Progress"})
 
-  } catch (error) {
-    res.status(500).json({ message: "Error loading dashboard" });
-  }
-});
+ const todo = await Task.countDocuments({status:"To Do"})
 
-module.exports = router;
+ res.json({
+  totalTasks,
+  completed,
+  inProgress,
+  todo
+ })
+
+})
+
+module.exports = router

@@ -1,41 +1,52 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-require("dotenv").config();
+const express = require("express")
+const mongoose = require("mongoose")
+const cors = require("cors")
+const http = require("http")
+const {Server} = require("socket.io")
+require("dotenv").config()
 
-const app = express();
+const authRoutes = require("./routes/authRoutes")
+const workspaceRoutes = require("./routes/workspaceRoutes")
+const projectRoutes = require("./routes/projectRoutes")
+const taskRoutes = require("./routes/taskRoutes")
+const dashboardRoutes = require("./routes/dashboardRoutes")
+const notificationRoutes = require("./routes/notificationRoutes")
 
-app.use(express.json());
+const app = express()
 
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://collaborative-task-manager-bay.vercel.app"
-  ]
-}));
+app.use(express.json())
+app.use(cors())
 
-// Routes
-const authRoutes = require("./routes/authRoutes");
-const dashboardRoutes = require("./routes/dashboardRoutes");
-app.use("/api/auth", authRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+const server = http.createServer(app)
 
-app.get("/", (req, res) => {
-  res.send("API Running");
-});
-
-const PORT = process.env.PORT || 5000;
-
-// IMPORTANT: connect DB first
-mongoose.connect(process.env.MONGO_URI)
-.then(() => {
-  console.log("MongoDB Connected");
-
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-
+const io = new Server(server,{
+ cors:{origin:"*"}
 })
-.catch((err) => {
-  console.log("MongoDB connection error:", err);
-});
+
+io.on("connection",(socket)=>{
+ console.log("User connected")
+
+ socket.on("taskMoved",(data)=>{
+  io.emit("taskUpdated",data)
+ })
+
+ socket.on("commentAdded",(data)=>{
+  io.emit("commentUpdate",data)
+ })
+})
+
+app.use("/api/auth",authRoutes)
+app.use("/api/workspaces",workspaceRoutes)
+app.use("/api/projects",projectRoutes)
+app.use("/api/tasks",taskRoutes)
+app.use("/api/dashboard",dashboardRoutes)
+app.use("/api/notifications",notificationRoutes)
+
+mongoose.connect(process.env.MONGO_URI)
+.then(()=>{
+ console.log("MongoDB connected")
+ server.listen(process.env.PORT || 5000,()=>{
+  console.log("Server running")
+ })
+})
+.catch(err=>console.log(err))
