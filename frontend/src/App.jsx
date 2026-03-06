@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -12,60 +12,59 @@ import Layout from "./components/Layout";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <Routes>
 
-        {/* Public Pages */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* Public Pages */}
+      <Route path="/" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        {/* Protected Pages */}
-        <Route
-          path="/workspace"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Workspace />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+      {/* Protected Pages */}
 
-        <Route
-          path="/project/:workspaceId"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Project />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/workspace"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Workspace />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/task/:id"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <TaskDetails />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/project/:workspaceId"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Project />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/task/:id"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <TaskDetails />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
 
-      </Routes>
-    </BrowserRouter>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+    </Routes>
   );
 }
 
