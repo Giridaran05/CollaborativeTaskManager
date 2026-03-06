@@ -1,24 +1,36 @@
-const express = require("express")
-const router = express.Router()
-const Task = require("../models/Task")
+const express = require("express");
+const router = express.Router();
+const Task = require("../models/Task");
 
-router.get("/",async(req,res)=>{
+router.get("/", async (req, res) => {
+  try {
 
- const totalTasks = await Task.countDocuments()
+    const tasks = await Task.find();
 
- const completed = await Task.countDocuments({status:"Done"})
+    const statusCount = {
+      "To Do": 0,
+      "In Progress": 0,
+      "Review": 0,
+      "Done": 0
+    };
 
- const inProgress = await Task.countDocuments({status:"In Progress"})
+    tasks.forEach(task => {
+      statusCount[task.status] += 1;
+    });
 
- const todo = await Task.countDocuments({status:"To Do"})
+    const tasksByStatus = Object.keys(statusCount).map(status => ({
+      status,
+      count: statusCount[status]
+    }));
 
- res.json({
-  totalTasks,
-  completed,
-  inProgress,
-  todo
- })
+    res.json({
+      totalTasks: tasks.length,
+      tasksByStatus
+    });
 
-})
+  } catch (error) {
+    res.status(500).json({ message: "Dashboard error" });
+  }
+});
 
-module.exports = router
+module.exports = router;
