@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+
+# environment variables
+.env
+
+# build files
+dist/
+build/
+
+# uploads
+uploads/
+
+# logs
+*.log# dependencies
+node_modules/
+
+# environment variables
+.env
+
+# build files
+dist/
+build/
+
+# uploads
+uploads/
+
+# logs
+*.log
