@@ -3,6 +3,7 @@ const router = express.Router();
 const Task = require("../models/Task");
 
 router.get("/", async (req, res) => {
+
   try {
 
     const tasks = await Task.find();
@@ -15,7 +16,9 @@ router.get("/", async (req, res) => {
     };
 
     tasks.forEach(task => {
-      statusCount[task.status] += 1;
+      if (statusCount[task.status] !== undefined) {
+        statusCount[task.status] += 1;
+      }
     });
 
     const tasksByStatus = Object.keys(statusCount).map(status => ({
@@ -23,14 +26,14 @@ router.get("/", async (req, res) => {
       count: statusCount[status]
     }));
 
-    res.json({
-      totalTasks: tasks.length,
-      tasksByStatus
-    });
+    res.json({ tasksByStatus });
 
   } catch (error) {
+
     res.status(500).json({ message: "Dashboard error" });
+
   }
+
 });
 
 module.exports = router;

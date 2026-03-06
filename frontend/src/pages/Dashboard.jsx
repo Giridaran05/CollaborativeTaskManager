@@ -3,8 +3,8 @@ import API from "../services/api";
 
 function Dashboard() {
 
-  const [loading, setLoading] = useState(true);
   const [tasksByStatus, setTasksByStatus] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
@@ -14,12 +14,15 @@ function Dashboard() {
 
         const res = await API.get("/dashboard");
 
-        // safe fallback
-        setTasksByStatus(res.data.tasksByStatus || []);
+        if (res.data && res.data.tasksByStatus) {
+          setTasksByStatus(res.data.tasksByStatus);
+        } else {
+          setTasksByStatus([]);
+        }
 
       } catch (error) {
 
-        console.error("Error fetching dashboard:", error);
+        console.error("Dashboard error:", error);
         setTasksByStatus([]);
 
       } finally {
@@ -27,6 +30,7 @@ function Dashboard() {
         setLoading(false);
 
       }
+
     };
 
     fetchDashboard();
@@ -34,7 +38,7 @@ function Dashboard() {
   }, []);
 
   if (loading) {
-    return <p>Loading dashboard...</p>;
+    return <h3>Loading dashboard...</h3>;
   }
 
   return (
@@ -45,24 +49,22 @@ function Dashboard() {
       {tasksByStatus.length === 0 ? (
         <p>No task data available</p>
       ) : (
-        <div>
 
-          {tasksByStatus.map((task, index) => (
+        tasksByStatus.map((task, index) => (
 
-            <div key={index} style={{
-              marginBottom: "10px",
-              padding: "10px",
-              background: "#f3f3f3",
-              borderRadius: "5px"
-            }}>
+          <div key={index} style={{
+            background: "#f3f3f3",
+            padding: "10px",
+            marginBottom: "10px",
+            borderRadius: "6px"
+          }}>
 
-              <strong>{task.status}</strong> : {task.count}
+            <strong>{task.status}</strong> : {task.count}
 
-            </div>
+          </div>
 
-          ))}
+        ))
 
-        </div>
       )}
 
     </div>
