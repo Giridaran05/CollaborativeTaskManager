@@ -1,10 +1,23 @@
 const express = require("express");
 const router = express.Router();
+const Task = require("../models/Task");
 
-const authMiddleware = require("../middleware/authMiddleware");
+router.get("/", async (req, res) => {
+  try {
 
-const { getDashboardStats } = require("../controllers/dashboardController");
+    const totalTasks = await Task.countDocuments();
+    const completedTasks = await Task.countDocuments({ status: "completed" });
+    const pendingTasks = await Task.countDocuments({ status: "pending" });
 
-router.get("/", authMiddleware, getDashboardStats);
+    res.json({
+      totalTasks,
+      completedTasks,
+      pendingTasks
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: "Dashboard error" });
+  }
+});
 
 module.exports = router;
