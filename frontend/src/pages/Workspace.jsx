@@ -1,15 +1,47 @@
 import React from "react";
+import { useState } from "react";
+import API from "../services/api";
 
-function Workspace() {
+function Workspaces() {
+
+  const [name, setName] = useState("");
+
+  const createWorkspace = async () => {
+
+    if (!name) return alert("Enter workspace name");
+
+    try {
+
+      await API.post("/workspaces", { name });
+
+      alert("Workspace created");
+
+      window.location.reload();
+
+    } catch (error) {
+
+      console.error(error);
+      alert("Failed to create workspace");
+
+    }
+
+  };
+
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Workspace</h1>
+    <div>
 
-      <button>Create Workspace</button>
+      <input
+        placeholder="Workspace name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
-      <p>Workspace list will appear here</p>
+      <button onClick={createWorkspace}>
+        Create Workspace
+      </button>
+
     </div>
   );
 }
 
-export default Workspace;
+export default Workspaces;
