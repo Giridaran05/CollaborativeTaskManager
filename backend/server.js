@@ -22,17 +22,27 @@ connectDB();
 
 const app = express();
 
-
+// -------------------
 // Middlewares
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
-}));
+// -------------------
 
 app.use(express.json());
 
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://collaborative-task-manager-bay.vercel.app"
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true
+  })
+);
 
+// -------------------
 // Routes
+// -------------------
+
 app.use("/api/auth", authRoutes);
 app.use("/api/workspaces", workspaceRoutes);
 app.use("/api/projects", projectRoutes);
@@ -47,89 +57,76 @@ app.get("/", (req, res) => {
   res.send("API Running");
 });
 
-
+// -------------------
 // Create HTTP Server
+// -------------------
+
 const server = http.createServer(app);
 
-
+// -------------------
 // Socket.IO Setup
+// -------------------
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PATCH", "DELETE"]
+    origin: [
+      "http://localhost:5173",
+      "https://collaborative-task-manager-bay.vercel.app"
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
   }
 });
 
-
+// -------------------
 // Track Online Users
+// -------------------
+
 let onlineUsers = {};
 
 io.on("connection", (socket) => {
-
   console.log("User connected:", socket.id);
-
 
   // User Online
   socket.on("userOnline", (userId) => {
-
     onlineUsers[userId] = socket.id;
-
     io.emit("onlineUsers", Object.keys(onlineUsers));
-
   });
 
-
-  // Task moved (Kanban)
+  // Task moved
   socket.on("taskMoved", (data) => {
-
     io.emit("taskUpdated", data);
-
   });
-
 
   // New comment
   socket.on("newComment", (data) => {
-
     io.emit("commentAdded", data);
-
   });
-
 
   // Member joined workspace
   socket.on("memberJoined", (data) => {
-
     io.emit("workspaceUpdated", data);
-
   });
-
 
   // Disconnect
   socket.on("disconnect", () => {
-
     console.log("User disconnected:", socket.id);
 
     for (let userId in onlineUsers) {
-
       if (onlineUsers[userId] === socket.id) {
-
         delete onlineUsers[userId];
-
       }
-
     }
 
     io.emit("onlineUsers", Object.keys(onlineUsers));
-
   });
-
 });
 
-
+// -------------------
 // Start Server
+// -------------------
+
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-
   console.log(`Server running on port ${PORT}`);
-
 });
